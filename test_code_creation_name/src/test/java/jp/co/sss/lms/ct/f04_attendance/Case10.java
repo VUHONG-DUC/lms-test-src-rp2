@@ -112,6 +112,10 @@ public class Case10 {
 		final WebElement creatCompleteElement = webDriver
 				.findElement(By.xpath("//div[contains(@class, 'alert') and contains(@class, 'alert-info')]/span"));
 		assertEquals("勤怠情報の登録が完了しました。", creatCompleteElement.getText());
+		//出勤時間が登録されているかを確認
+		final WebElement punchInCheck = webDriver
+				.findElement(By.xpath("//div[@id='main']/div[@class='row']//tbody/tr[@class='info']/td[3]"));
+		assertTrue(!punchInCheck.getText().equals(""));
 		//エビデンス取得
 		getEvidence(new Object() {
 		});
@@ -131,6 +135,10 @@ public class Case10 {
 		final WebElement creatCompleteElement = webDriver
 				.findElement(By.xpath("//div[contains(@class, 'alert') and contains(@class, 'alert-info')]/span"));
 		assertEquals("勤怠情報の登録が完了しました。", creatCompleteElement.getText());
+		//退勤時間が登録されているかを確認
+		final WebElement punchOutCheck = webDriver
+				.findElement(By.xpath("//div[@id='main']/div[@class='row']//tbody/tr[@class='info']/td[4]"));
+		assertTrue(!punchOutCheck.getText().equals(""));
 		//エビデンス取得
 		getEvidence(new Object() {
 		});
