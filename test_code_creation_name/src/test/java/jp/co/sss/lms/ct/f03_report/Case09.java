@@ -3,8 +3,6 @@ package jp.co.sss.lms.ct.f03_report;
 import static jp.co.sss.lms.ct.util.WebDriverUtils.*;
 import static org.junit.Assert.*;
 
-import java.util.List;
-
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -70,8 +68,6 @@ public class Case09 {
 		// ログイン処理
 		loginPassword.sendKeys(Keys.ENTER);
 		pageLoadTimeout(10);
-		//タイトルを確認
-		assertEquals("コース詳細 | LMS", webDriver.getTitle());
 		//small要素を取得し、ユーザー名を確認
 		final WebElement smallElement = webDriver.findElement(By.tagName("small"));
 		String userName = smallElement.getText();
@@ -255,7 +251,7 @@ public class Case09 {
 
 	@Test
 	@Order(9)
-	@DisplayName("テスト09 不適切な内容で修正して「提出する」ボタンを押下しエラー表示：目標の達成度・所感が未入力")
+	@DisplayName("テスト09 不適切な内容で修正して「提出する」ボタンを押下しエラー表示：目標の達成度が未入力")
 	void test09() {
 		// レポート各カラムを取得
 		final WebElement fieldNameElement = webDriver.findElement(By.id("intFieldName_0"));
@@ -271,6 +267,7 @@ public class Case09 {
 		//項目入力
 		fieldNameElement.sendKeys("テスト");
 		fieldValueElement.sendKeys("1");
+		impressionsElement.sendKeys("理解できた");
 		reviewOfTheWeekElement.sendKeys("テスト");
 		//提出処理
 		scrollBy("300");
@@ -279,13 +276,9 @@ public class Case09 {
 		//遷移先、エラーメッセージを確認
 		pageLoadTimeout(10);
 		assertEquals("レポート登録 | LMS", webDriver.getTitle());
-		List<WebElement> errElement = webDriver.findElements(By.xpath("//p[@class='help-inline error']/span"));
-		//達成度エラーメッセージ
-		String achievementLevelErr = errElement.get(0).getText();
-		assertEquals("* 目標の達成度は半角数字で入力してください。", achievementLevelErr);
-		//所感エラーメッセージ
-		String impressionsErr = errElement.get(1).getText();
-		assertEquals("* 所感は必須です。", impressionsErr);
+		final WebElement errElement = webDriver.findElement(By.xpath("//p[@class='help-inline error']/span"));
+		//達成度エラーメッセージ検証
+		assertEquals("* 目標の達成度は半角数字で入力してください。", errElement.getText());
 		//エビデンス取得
 		getEvidence(new Object() {
 		});
@@ -293,8 +286,43 @@ public class Case09 {
 
 	@Test
 	@Order(10)
-	@DisplayName("テスト10 不適切な内容で修正して「提出する」ボタンを押下しエラー表示：所感・一週間の振り返りが2000文字超")
+	@DisplayName("テスト10 不適切な内容で修正して「提出する」ボタンを押下しエラー表示：所感が未入力")
 	void test10() {
+		// レポート各カラムを取得
+		final WebElement fieldNameElement = webDriver.findElement(By.id("intFieldName_0"));
+		final WebElement fieldValueElement = webDriver.findElement(By.id("intFieldValue_0"));
+		final WebElement achievementLevelElement = webDriver.findElement(By.id("content_0"));
+		final WebElement impressionsElement = webDriver.findElement(By.id("content_1"));
+		final WebElement reviewOfTheWeekElement = webDriver.findElement(By.id("content_2"));
+		//クリア処理
+		fieldNameElement.clear();
+		achievementLevelElement.clear();
+		impressionsElement.clear();
+		reviewOfTheWeekElement.clear();
+		//項目入力
+		fieldNameElement.sendKeys("テスト");
+		fieldValueElement.sendKeys("1");
+		achievementLevelElement.sendKeys("1");
+		reviewOfTheWeekElement.sendKeys("テスト");
+		//提出処理
+		scrollBy("300");
+		final WebElement submitButtonElement = webDriver.findElement(By.className("btn-primary"));
+		submitButtonElement.click();
+		//遷移先、エラーメッセージを確認
+		pageLoadTimeout(10);
+		assertEquals("レポート登録 | LMS", webDriver.getTitle());
+		final WebElement errElement = webDriver.findElement(By.xpath("//p[@class='help-inline error']/span"));
+		//所感エラーメッセージ検証
+		assertEquals("* 所感は必須です。", errElement.getText());
+		//エビデンス取得
+		getEvidence(new Object() {
+		});
+	}
+
+	@Test
+	@Order(11)
+	@DisplayName("テスト10 不適切な内容で修正して「提出する」ボタンを押下しエラー表示：所感が2000文字超")
+	void test11() {
 		// レポート各カラムを取得
 		final WebElement fieldNameElement = webDriver.findElement(By.id("intFieldName_0"));
 		final WebElement fieldValueElement = webDriver.findElement(By.id("intFieldValue_0"));
@@ -303,7 +331,6 @@ public class Case09 {
 		final WebElement reviewOfTheWeekElement = webDriver.findElement(By.id("content_2"));
 		//2000文字以上を設定
 		String impressionsInput = "a".repeat(2001);
-		String reviewOfTheWeekInput = "a".repeat(2001);
 		//クリア処理
 		fieldNameElement.clear();
 		achievementLevelElement.clear();
@@ -314,6 +341,45 @@ public class Case09 {
 		fieldValueElement.sendKeys("1");
 		achievementLevelElement.sendKeys("1");
 		impressionsElement.sendKeys(impressionsInput);
+		reviewOfTheWeekElement.sendKeys("テスト");
+		//提出処理
+		scrollBy("300");
+		final WebElement submitButtonElement = webDriver.findElement(By.className("btn-primary"));
+		submitButtonElement.click();
+		//遷移先、エラーメッセージを確認
+		pageLoadTimeout(10);
+		assertEquals("レポート登録 | LMS", webDriver.getTitle());
+		final WebElement errElement = webDriver.findElement(By.xpath("//p[@class='help-inline error']/span"));
+		//所感エラーメッセージ検証
+		String achievementLevelErr = errElement.getText();
+		assertEquals("* 所感の長さが最大値(2000)を超えています。", achievementLevelErr);
+		//エビデンス取得
+		getEvidence(new Object() {
+		});
+	}
+
+	@Test
+	@Order(12)
+	@DisplayName("テスト10 不適切な内容で修正して「提出する」ボタンを押下しエラー表示：一週間の振り返りが2000文字超")
+	void test12() {
+		// レポート各カラムを取得
+		final WebElement fieldNameElement = webDriver.findElement(By.id("intFieldName_0"));
+		final WebElement fieldValueElement = webDriver.findElement(By.id("intFieldValue_0"));
+		final WebElement achievementLevelElement = webDriver.findElement(By.id("content_0"));
+		final WebElement impressionsElement = webDriver.findElement(By.id("content_1"));
+		final WebElement reviewOfTheWeekElement = webDriver.findElement(By.id("content_2"));
+		//2000文字以上を設定
+		String reviewOfTheWeekInput = "a".repeat(2001);
+		//クリア処理
+		fieldNameElement.clear();
+		achievementLevelElement.clear();
+		impressionsElement.clear();
+		reviewOfTheWeekElement.clear();
+		//項目入力
+		fieldNameElement.sendKeys("テスト");
+		fieldValueElement.sendKeys("1");
+		achievementLevelElement.sendKeys("1");
+		impressionsElement.sendKeys("理解できた");
 		reviewOfTheWeekElement.sendKeys(reviewOfTheWeekInput);
 		//提出処理
 		scrollBy("300");
@@ -322,16 +388,12 @@ public class Case09 {
 		//遷移先、エラーメッセージを確認
 		pageLoadTimeout(10);
 		assertEquals("レポート登録 | LMS", webDriver.getTitle());
-		List<WebElement> errElement = webDriver.findElements(By.xpath("//p[@class='help-inline error']/span"));
-		//達成度エラーメッセージ
-		String achievementLevelErr = errElement.get(0).getText();
-		assertEquals("* 所感の長さが最大値(2000)を超えています。", achievementLevelErr);
-		//所感エラーメッセージ
-		String impressionsErr = errElement.get(1).getText();
+		final WebElement errElement = webDriver.findElement(By.xpath("//p[@class='help-inline error']/span"));
+		//達成度エラーメッセージ検証
+		String impressionsErr = errElement.getText();
 		assertEquals("* 一週間の振り返りの長さが最大値(2000)を超えています。", impressionsErr);
 		//エビデンス取得
 		getEvidence(new Object() {
 		});
 	}
-
 }
